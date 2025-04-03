@@ -16,33 +16,50 @@
     <script src="https://unpkg.com/swagger-ui-dist@5.0.0/swagger-ui-bundle.js"></script>
     <script>
       window.onload = function() {
-        // First fetch and modify the spec to remove Data sections
+        const tagToRemove = "Data"; // Define the tag to remove
+        
+        // Fetch and modify the spec
         fetch('./swagger.json')
           .then(response => response.json())
           .then(spec => {
-            // Find and remove all paths with "Data" tag
-            const filteredSpec = {...spec};
-            
-            // Filter out any paths that have a Data tag
+            // Create a deep copy to avoid modifying the original spec object if needed later
+            const filteredSpec = JSON.parse(JSON.stringify(spec));
+
+            // 1. Filter paths and operations
             if (filteredSpec.paths) {
               Object.keys(filteredSpec.paths).forEach(path => {
                 const pathItem = filteredSpec.paths[path];
-                
-                // Check each operation (GET, POST, etc.) in the path
+                let pathHasOtherTags = false;
+
+                // Check each HTTP method for the tag
                 ['get', 'post', 'put', 'delete', 'patch', 'options', 'head'].forEach(method => {
-                  if (pathItem[method] && 
-                      pathItem[method].tags && 
-                      pathItem[method].tags.includes('Data')) {
-                    // Remove this method if it has the "Data" tag
-                    delete pathItem[method];
+                  if (pathItem[method] && pathItem[method].tags) {
+                    // Check if the operation has the tag to remove
+                    if (pathItem[method].tags.includes(tagToRemove)) {
+                      // Remove the specific operation (method) from the path
+                      delete pathItem[method];
+                      console.log(`Removed ${method.toUpperCase()} operation from path ${path} due to tag '${tagToRemove}'`);
+                    } else {
+                       // If an operation doesn't have the tag, mark that this path should be kept
+                       pathHasOtherTags = true; 
+                    }
                   }
                 });
-                
-                // Remove the entire path if it has no operations left
-                if (Object.keys(pathItem).filter(k => ['get', 'post', 'put', 'delete', 'patch', 'options', 'head'].includes(k)).length === 0) {
+
+                // If *all* operations were removed (meaning the path only had the target tag),
+                // or if the path becomes empty, remove the entire path definition.
+                const remainingMethods = Object.keys(pathItem).filter(k => ['get', 'post', 'put', 'delete', 'patch', 'options', 'head'].includes(k));
+                if (remainingMethods.length === 0) {
                   delete filteredSpec.paths[path];
+                   console.log(`Removed path ${path} as all its operations had tag '${tagToRemove}'`);
                 }
               });
+            }
+
+            // 2. Filter the main tags definition array (if it exists)
+            if (filteredSpec.tags && Array.isArray(filteredSpec.tags)) {
+                filteredSpec.tags = filteredSpec.tags.filter(tag => tag.name !== tagToRemove);
+                console.log(`Removed tag definition for '${tagToRemove}' from top-level tags.`);
             }
             
             // Initialize Swagger UI with the filtered spec
@@ -55,11 +72,11 @@
                 SwaggerUIBundle.SwaggerUIStandalonePreset
               ],
               layout: "BaseLayout",
-              docExpansion: "list",
-              tagsSorter: 'alpha',
-              operationsSorter: 'alpha',
-              defaultModelsExpandDepth: -1,
-              displayOperationId: false,
+              docExpansion: "list", // Expand sections by default
+              tagsSorter: 'alpha', // Sort sections alphabetically
+              operationsSorter: 'alpha', // Sort operations alphabetically
+              defaultModelsExpandDepth: -1, // Hide Models section
+              displayOperationId: false, // Hide operation IDs
               supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch']
             });
           })
