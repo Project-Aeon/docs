@@ -35,29 +35,39 @@
             if (filteredSpec.paths) {
               Object.keys(filteredSpec.paths).forEach(path => {
                 const pathItem = filteredSpec.paths[path];
-                let pathHasOtherTags = false;
+                let pathHasOtherTags = false; // Track if path has non-Data, non-filtered Workflow operations
 
                 // Check each HTTP method for the tag
                 ['get', 'post', 'put', 'delete', 'patch', 'options', 'head'].forEach(method => {
                   if (pathItem[method] && pathItem[method].tags) {
-                    // Check if the operation has the tag to remove
-                    if (pathItem[method].tags.includes(tagToRemove)) {
-                      // Remove the specific operation (method) from the path
+                    const operationTags = pathItem[method].tags;
+
+                    // Remove if tagged with 'Data'
+                    if (operationTags.includes(tagToRemove)) {
                       delete pathItem[method];
                       console.log(`Removed ${method.toUpperCase()} operation from path ${path} due to tag '${tagToRemove}'`);
-                    } else {
-                       // If an operation doesn't have the tag, mark that this path should be kept
+                    } 
+                    // If tagged 'Workflow', check if path starts with '/wf/pub-'
+                    else if (operationTags.includes('Workflow')) {
+                      if (!path.startsWith('/wf/pub-')) {
+                         delete pathItem[method];
+                         console.log(`Removed ${method.toUpperCase()} Workflow operation from path ${path} because it doesn't start with /wf/pub-`);
+                      } else {
+                         pathHasOtherTags = true; // Keep this path if it has a valid Workflow op
+                      }
+                    }
+                    // Otherwise (not Data, not Workflow), keep it
+                    else {
                        pathHasOtherTags = true; 
                     }
                   }
                 });
 
-                // If *all* operations were removed (meaning the path only had the target tag),
-                // or if the path becomes empty, remove the entire path definition.
+                // If *all* operations were removed, remove the entire path definition.
                 const remainingMethods = Object.keys(pathItem).filter(k => ['get', 'post', 'put', 'delete', 'patch', 'options', 'head'].includes(k));
                 if (remainingMethods.length === 0) {
                   delete filteredSpec.paths[path];
-                   console.log(`Removed path ${path} as all its operations had tag '${tagToRemove}'`);
+                   console.log(`Removed path ${path} as all its operations were filtered out`);
                 }
               });
             }
