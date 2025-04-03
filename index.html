@@ -16,34 +16,61 @@
     <script src="https://unpkg.com/swagger-ui-dist@5.0.0/swagger-ui-bundle.js"></script>
     <script>
       window.onload = function() {
-        // Define filter function to exclude Data endpoints
-        const filterDataEndpoints = (taggedOperations, taggedOperationsMap) => {
-          // Filter out any operations with the tag "Data"
-          return taggedOperations.filter(tagObj => tagObj.name !== "Data");
-        };
-
-        SwaggerUIBundle({
-          url: "./swagger.json",
-          dom_id: '#swagger-ui',
-          deepLinking: true,
-          presets: [
-            SwaggerUIBundle.presets.apis,
-            SwaggerUIBundle.SwaggerUIStandalonePreset
-          ],
-          layout: "BaseLayout",
-          docExpansion: "list",
-          defaultModelsExpandDepth: 1,
-          supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch'],
-          tagsSorter: 'alpha',
-          operationsSorter: 'alpha',
-          
-          // Apply the filter to hide Data section
-          tagFilter: filterDataEndpoints,
-          
-          // Hide the models section at the bottom
-          defaultModelsExpandDepth: -1,
-          displayOperationId: false
-        });
+        // First fetch and modify the spec to remove Data sections
+        fetch('./swagger.json')
+          .then(response => response.json())
+          .then(spec => {
+            // Find and remove all paths with "Data" tag
+            const filteredSpec = {...spec};
+            
+            // Filter out any paths that have a Data tag
+            if (filteredSpec.paths) {
+              Object.keys(filteredSpec.paths).forEach(path => {
+                const pathItem = filteredSpec.paths[path];
+                
+                // Check each operation (GET, POST, etc.) in the path
+                ['get', 'post', 'put', 'delete', 'patch', 'options', 'head'].forEach(method => {
+                  if (pathItem[method] && 
+                      pathItem[method].tags && 
+                      pathItem[method].tags.includes('Data')) {
+                    // Remove this method if it has the "Data" tag
+                    delete pathItem[method];
+                  }
+                });
+                
+                // Remove the entire path if it has no operations left
+                if (Object.keys(pathItem).filter(k => ['get', 'post', 'put', 'delete', 'patch', 'options', 'head'].includes(k)).length === 0) {
+                  delete filteredSpec.paths[path];
+                }
+              });
+            }
+            
+            // Initialize Swagger UI with the filtered spec
+            SwaggerUIBundle({
+              spec: filteredSpec,
+              dom_id: '#swagger-ui',
+              deepLinking: true,
+              presets: [
+                SwaggerUIBundle.presets.apis,
+                SwaggerUIBundle.SwaggerUIStandalonePreset
+              ],
+              layout: "BaseLayout",
+              docExpansion: "list",
+              tagsSorter: 'alpha',
+              operationsSorter: 'alpha',
+              defaultModelsExpandDepth: -1,
+              displayOperationId: false,
+              supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch']
+            });
+          })
+          .catch(e => {
+            console.error("Error loading and processing the spec:", e);
+            // Fallback to default loading if there's an error
+            SwaggerUIBundle({
+              url: "./swagger.json",
+              dom_id: '#swagger-ui'
+            });
+          });
       }
     </script>
   </body>
