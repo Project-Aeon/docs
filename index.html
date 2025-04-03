@@ -19,8 +19,14 @@
         const tagToRemove = "Data"; // Define the tag to remove
         
         // Fetch and modify the spec
-        fetch('./swagger.json')
-          .then(response => response.json())
+        fetch('https://app.project-aeon.com/version-test/api/1.1/meta/swagger.json') // Use the remote URL
+          .then(response => {
+            // Check for CORS or other fetch errors
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+          })
           .then(spec => {
             // Create a deep copy to avoid modifying the original spec object if needed later
             const filteredSpec = JSON.parse(JSON.stringify(spec));
