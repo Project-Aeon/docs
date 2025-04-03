@@ -75,6 +75,9 @@
               docExpansion: "list", // Expand sections by default
               tagsSorter: 'alpha', // Sort sections alphabetically
               operationsSorter: 'alpha', // Sort operations alphabetically
+              filter: true, // Enable filtering input
+              // Add a filter function to specifically hide the Data tag group header
+              tagFilter: (tag) => tag !== tagToRemove,
               defaultModelsExpandDepth: -1, // Hide Models section
               displayOperationId: false, // Hide operation IDs
               supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch']
