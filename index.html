@@ -75,9 +75,16 @@
               docExpansion: "list", // Expand sections by default
               tagsSorter: 'alpha', // Sort sections alphabetically
               operationsSorter: 'alpha', // Sort operations alphabetically
-              filter: true, // Enable filtering input
+              // filter: true, // Temporarily remove interactive filter to avoid potential conflict
               // Add a filter function to specifically hide the Data tag group header
-              tagFilter: (tag) => tag !== tagToRemove,
+              tagFilter: (tag, tagObject) => { 
+                  console.log("Filtering tag:", tag, "Object:", tagObject); // Log what's passed to the filter
+                  // Check if the tag name (either as string or object property) matches
+                  const tagName = typeof tag === 'string' ? tag : (tagObject && tagObject.get('name'));
+                  const shouldShow = tagName !== tagToRemove;
+                  console.log(`Tag: ${tagName}, Should show: ${shouldShow}`);
+                  return shouldShow;
+               },
               defaultModelsExpandDepth: -1, // Hide Models section
               displayOperationId: false, // Hide operation IDs
               supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch']
