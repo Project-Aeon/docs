@@ -16,6 +16,12 @@
     <script src="https://unpkg.com/swagger-ui-dist@5.0.0/swagger-ui-bundle.js"></script>
     <script>
       window.onload = function() {
+        // Define filter function to exclude Data endpoints
+        const filterDataEndpoints = (taggedOperations, taggedOperationsMap) => {
+          // Filter out any operations with the tag "Data"
+          return taggedOperations.filter(tagObj => tagObj.name !== "Data");
+        };
+
         SwaggerUIBundle({
           url: "./swagger.json",
           dom_id: '#swagger-ui',
@@ -28,6 +34,15 @@
           docExpansion: "list",
           defaultModelsExpandDepth: 1,
           supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch'],
+          tagsSorter: 'alpha',
+          operationsSorter: 'alpha',
+          
+          // Apply the filter to hide Data section
+          tagFilter: filterDataEndpoints,
+          
+          // Hide the models section at the bottom
+          defaultModelsExpandDepth: -1,
+          displayOperationId: false
         });
       }
     </script>
