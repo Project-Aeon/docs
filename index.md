@@ -13,9 +13,6 @@ Use these endpoints to list available presets, create a video, and poll for its 
 https://app.project-aeon.com/api/1.1/wf/
 ```
 
-All examples assume production.  
-For testing, replace the domain with `app.project-aeon.com/version-test`.
-
 ---
 
 ## Authentication & Security
