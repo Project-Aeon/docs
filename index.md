@@ -22,25 +22,26 @@ https://app.project-aeon.com/api/1.1/wf/
 | `Authorization` | `Bearer YOUR_API_TOKEN` | Obtain from your Aeon dashboard *(never commit real tokens to Git)* |
 | `Content-Type` | `application/json` | All requests and responses use JSON |
 
-You’ll **also** pass a **`user_key`** in most request bodies.  
+You'll **also** pass a **`user_key`** in most request bodies.  
 The user key identifies your account and determines which presets and videos you can access.
 
 > **Tip:** Store both the API token and user key in your CI/CD secret manager—*never* in source control.
 
 ---
 
-## Quick Start
+## Quick  Start
 
 1. [Generate a user key](#generate-a-user-key)  
 2. [List built‑in presets](#list-presets)  
-3. [Create a video](#create-a-video-from-a-preset)  
-4. [Poll for completion](#poll-video-status)  
+3. [Make a preset cloning from a built-in preset](#clone-a-preset)
+4. [Create a video from the preset](#create-a-video-from-a-preset)  
+5. [Poll for completion](#poll-video-status)  
 
 ---
 
 ## Generate a User Key
 
-User keys don’t expire, but they become invalid if you change your email or password.
+User keys don't expire, but they become invalid if you change your email or password.
 
 | Step | Description |
 |------|-------------|
@@ -89,6 +90,90 @@ curl -X POST "https://app.project-aeon.com/api/1.1/wf/ae_get_presets"   -H "Auth
 
 ---
 
+### List Supported Languages
+
+Returns valid language codes for the optional `language` parameter in **Create Video**.
+
+| Method | Path |
+|--------|------|
+| `POST` | `/ae_list_languages` |
+
+Required body fields:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `user_key` | string | Your user key |
+
+```bash
+cURL -X POST "https://app.project-aeon.com/api/1.1/wf/ae_list_languages" \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+        "user_key": "YOUR_USER_KEY"
+      }'
+```
+
+<details><summary>Sample response (Placeholder)</summary>
+
+```json
+{
+  "status": "success",
+  "response": {
+    "languages": [
+      { "code": "en-US", "name": "English (US)" },
+      { "code": "es-ES", "name": "Spanish (Spain)" }
+      // ... other languages
+    ]
+  }
+}
+```
+</details>
+
+---
+
+### Clone a Preset
+
+Creates a new, editable preset based on an existing built-in or custom preset. This allows you to customize styling, transitions, and other video elements derived from a base template.
+
+| Method | Path |
+|--------|------|
+| `POST` | `/ae_clone_new_preset` |
+
+Required body fields:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `user_key` | string | Your user key |
+| `clone_from_preset_id` | string | ID of the preset to clone (from **List Presets**) |
+| `source_url` | string | Web page URL used to initialize the clone |
+
+```bash
+curl -X POST "https://app.project-aeon.com/api/1.1/wf/ae_clone_new_preset" \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+        "user_key": "YOUR_USER_KEY",
+        "clone_from_preset_id": "EXISTING_PRESET_ID",
+        "source_url": "https://example.com/article-for-cloning"
+      }'
+```
+
+<details><summary>Sample response (Placeholder)</summary>
+
+```json
+{
+  "status": "success",
+  "response": {
+    "new_preset_id": "NEW_PRESET_ID",
+    "message": "Preset cloned successfully." 
+    // Add actual response structure here
+  }
+}
+```
+</details>
+
+---
+
 ### Create a Video from a Preset
 
 | Method | Path |
@@ -104,14 +189,24 @@ Required body fields:
 | `source_url` | string | Web page to convert |
 | `user_key` | string | Your user key |
 | `callback_url` | string *(optional)* | POSTed when rendering finishes |
+| `captions` | boolean *(optional)* | Generate captions (default: `true`) |
+| `voice` | boolean *(optional)* | Include voiceover (default: `true`) |
+| `language` | string *(optional)* | Language code (e.g., `en-US`). See [List Supported Languages](#list-supported-languages). Default depends on preset. |
+| `soundtrack` | boolean *(optional)* | Include background music (default: `true`) |
 
 ```bash
 curl -X POST "https://app.project-aeon.com/api/1.1/wf/ae_new_video_from_preset"   -H "Authorization: Bearer YOUR_API_TOKEN"   -H "Content-Type: application/json"   -d '{
         "preset_video_id": "PRESET_ID",
-        "video_name": "Aeon Demo — April 2025",
+        "video_name": "Aeon Demo — April 2025",
         "source_url": "https://example.com/article",
         "user_key": "YOUR_USER_KEY",
-        "callback_url": "https://yourserver.com/aeon-webhook"
+        "callback_url": "https://yourserver.com/aeon-webhook",
+        
+        // Optional parameters
+        "captions": true,
+        "voice": true,
+        "language": "en-US", // Get valid codes from /ae_list_languages
+        "soundtrack": true 
       }'
 ```
 
