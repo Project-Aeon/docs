@@ -135,6 +135,9 @@ cURL -X POST "https://app.project-aeon.com/api/1.1/wf/ae_list_languages" \
 
 Creates a new, editable preset based on an existing built-in or custom preset. This allows you to customize styling, transitions, and other video elements derived from a base template.
 
+Note that cloning takes ~1 minute, so please setup a callback URL to receive the response.
+Note that this is only needed to adapt a preset to a new brand, this isn't needed for every video.
+
 | Method | Path |
 |--------|------|
 | `POST` | `/ae_clone_new_preset` |
@@ -146,6 +149,8 @@ Required body fields:
 | `user_key` | string | Your user key |
 | `clone_from_preset_id` | string | ID of the preset to clone (from **List Presets**) |
 | `source_url` | string | Web page URL used to initialize the clone |
+| `callback_url` | string *(optional)* | POSTed when cloning finishes (takes ~1 minute) |
+| `team_id` | string *(optional)* | ID of the team to associate the cloned preset with |
 
 ```bash
 curl -X POST "https://app.project-aeon.com/api/1.1/wf/ae_clone_new_preset" \
@@ -154,7 +159,9 @@ curl -X POST "https://app.project-aeon.com/api/1.1/wf/ae_clone_new_preset" \
   -d '{
         "user_key": "YOUR_USER_KEY",
         "clone_from_preset_id": "EXISTING_PRESET_ID",
-        "source_url": "https://example.com/article-for-cloning"
+        "source_url": "https://example.com/article-for-cloning",
+        "callback_url": "https://yourserver.com/aeon-webhook",
+        "team_id": "YOUR_TEAM_ID"
       }'
 ```
 
@@ -164,9 +171,7 @@ curl -X POST "https://app.project-aeon.com/api/1.1/wf/ae_clone_new_preset" \
 {
   "status": "success",
   "response": {
-    "new_preset_id": "NEW_PRESET_ID",
-    "message": "Preset cloned successfully." 
-    // Add actual response structure here
+    "preset_video_id": "NEW_PRESET_ID",
   }
 }
 ```
