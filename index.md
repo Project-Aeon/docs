@@ -195,7 +195,7 @@ Required body fields:
 | `user_key` | string | Your user key |
 | `callback_url` | string *(optional)* | POSTed when rendering finishes |
 | `captions` | boolean *(optional)* | Generate captions (default: `true`) |
-| `voice` | boolean *(optional)* | Include voiceover (default: `true`) |
+| `voice` | boolean *(optional)* | Include voiceover (default: `false`) |
 | `language` | string *(optional)* | Language code (e.g., `en-US`). See [List Supported Languages](#list-supported-languages). Default depends on preset. |
 | `soundtrack` | boolean *(optional)* | Include background music (default: `true`) |
 
