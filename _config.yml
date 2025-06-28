@@ -1,2 +1,11 @@
 title: Aeon API
 theme: jekyll-theme-slate   # change to jekyll-theme-cayman, minimal, etc.
+
+# Exclude files from being published to GitHub Pages
+exclude:
+  - private/
+  - drafts/
+  - internal-notes.md
+  - "*.private.md"
+  - dev-notes/
+  - README.md  # if you don't want README shown on the site

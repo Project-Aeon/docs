@@ -1,4 +1,4 @@
-# Aeon API Documentation (v0.1 BETA)
+# Aeon API Documentation (v0.1 BETA)
 
 > **Status:** Public beta – endpoints and payloads may change.
 
@@ -29,7 +29,7 @@ The user key identifies your account and determines which presets and videos you
 
 ---
 
-## Quick  Start
+## Quick  Start
 
 1. [Generate a user key](#generate-a-user-key)  
 2. [List built‑in presets](#list-presets)  
@@ -39,7 +39,7 @@ The user key identifies your account and determines which presets and videos you
 
 ---
 
-## Generate a User Key
+## Generate a User Key
 
 User keys don't expire, but they become invalid if you change your email or password.
 
@@ -55,7 +55,7 @@ User keys don't expire, but they become invalid if you change your email or pass
 
 ### List Presets
 
-Returns preset IDs you can use with **Create Video**.
+Returns preset IDs you can use with **Create Video**.
 
 | Method | Path |
 |--------|------|
@@ -68,7 +68,7 @@ curl -X POST "https://app.project-aeon.com/api/1.1/wf/ae_get_presets"   -H "Auth
       }'
 ```
 
-<details><summary>Sample response</summary>
+<details><summary>Sample response</summary>
 
 ```json
 {
@@ -92,7 +92,7 @@ curl -X POST "https://app.project-aeon.com/api/1.1/wf/ae_get_presets"   -H "Auth
 
 ### List Supported Languages
 
-Returns valid language codes for the optional `language` parameter in **Create Video**.
+Returns valid language codes for the optional `language` parameter in **Create Video**.
 
 | Method | Path |
 |--------|------|
@@ -261,14 +261,242 @@ curl -X POST "https://app.project-aeon.com/api/1.1/wf/ae_get_video"   -H "Author
 
 ---
 
+# AIGC Preview API - Image Processing
+
+> **Status:** Preview API for local development and testing
+
+The AIGC Preview API processes images through an AI pipeline that can handle both URL-based and base64-encoded image inputs. The API generates AI descriptions and performs various image processing tasks.
+
+## Base URL
+
+```
+https://aigc-preview-889529529975.us-central1.run.app
+```
+
+## Authentication
+
+No authentication required for local development API.
+
+---
+
+## Endpoints
+
+### Health Check
+```http
+GET /health
+```
+
+Returns service health status.
+
+### Root Information
+```http
+GET /
+```
+
+Returns API information and available endpoints.
+
+### Process Images (Main Endpoint)
+```http
+POST /create-slideshow-urls
+```
+
+Process images from URLs and/or base64 encoded data through the AI pipeline.
+
+## Request Format
+
+### Content-Type
+```
+Content-Type: application/json
+```
+
+### Request Body
+
+```json
+{
+  "image_urls": ["string"],           // Optional: Array of image URLs
+  "base64_images": [                  // Optional: Array of base64 image objects
+    {
+      "data": "string",               // Required: Base64 encoded image data
+      "mime_type": "string"           // Optional: MIME type (default: "image/jpeg")
+    }
+  ],
+  "duration_per_image": 3.0,          // Optional: Duration per image (default: 3.0)
+  "fps": 30,                          // Optional: FPS (default: 30)
+  "resolution_width": 1920,           // Optional: Width (default: 1920)
+  "resolution_height": 1080,          // Optional: Height (default: 1080)
+  "pipeline_config_file": "string",   // Optional: Config file name
+  "location_prompt": "string"         // Optional: Location context for AI
+}
+```
+
+### Requirements
+
+- At least one of `image_urls` or `base64_images` must be provided
+- Maximum 50 images total (URLs + base64 combined)
+- Base64 images must have valid `data` field
+- Supported image formats: JPEG, PNG, GIF, WebP, AVIF
+
+## Input Methods
+
+### 1. URL-Based Images
+
+```json
+{
+  "image_urls": [
+    "https://example.com/image1.jpg",
+    "https://example.com/image2.png"
+  ],
+  "location_prompt": "in a modern office setting"
+}
+```
+
+### 2. Base64-Encoded Images
+
+```json
+{
+  "base64_images": [
+    {
+      "data": "iVBORw0KGgoAAAANSUhEUgAA...",
+      "mime_type": "image/png"
+    },
+    {
+      "data": "/9j/4AAQSkZJRgABAQAAAQAB...",
+      "mime_type": "image/jpeg"
+    }
+  ]
+}
+```
+
+### 3. Mixed Input (URLs + Base64)
+
+```json
+{
+  "image_urls": ["https://example.com/image1.jpg"],
+  "base64_images": [
+    {
+      "data": "iVBORw0KGgoAAAANSUhEUgAA...",
+      "mime_type": "image/png"
+    }
+  ],
+  "location_prompt": "in a professional photography studio"
+}
+```
+
+## Response Format
+
+### Success Response (200 OK)
+
+```json
+{
+  "status": "success",
+  "message": "Images processed successfully from URLs and base64 images!",
+  "images_requested": 3,
+  "result": {
+    "processed_images": [
+      "https://storage.googleapis.com/bucket/processed_image1.jpg",
+      "https://storage.googleapis.com/bucket/processed_image2.jpg"
+    ],
+    "saved_state_blob": "aigc_saved_state_uuid.json"
+  }
+}
+```
+
+### Error Response (4xx/5xx)
+
+```json
+{
+  "detail": "Error message describing what went wrong"
+}
+```
+
+## Pipeline Configuration Options
+
+### Available Config Files
+
+- `in-studio_selected-assets_classic.json` (default)
+- `in-studio_selected-assets_360.json`
+- `in-studio_selected-assets_no-face.json`
+
+### Usage
+
+```json
+{
+  "pipeline_config_file": "in-studio_selected-assets_360.json"
+}
+```
+
+## cURL Examples
+
+### Using Base64 Images
+
+```bash
+curl -X POST http://localhost:8080/create-slideshow-urls \
+  -H "Content-Type: application/json" \
+  -d '{
+    "image_urls": [],
+    "base64_images": [
+      {
+        "data": "iVBORw0KGgoAAAANSUhEUgAA...",
+        "mime_type": "image/png"
+      }
+    ],
+    "location_prompt": "in a modern office"
+  }'
+```
+
+### Using Image URLs
+
+```bash
+curl -X POST http://localhost:8080/create-slideshow-urls \
+  -H "Content-Type: application/json" \
+  -d '{
+    "image_urls": [
+      "https://example.com/image1.jpg",
+      "https://example.com/image2.png"
+    ],
+    "duration_per_image": 3.0,
+    "fps": 30
+  }'
+```
+
+## Image Processing Limits
+
+- Maximum 50 images per request
+- 180-second timeout for processing
+- Base64 images are temporarily stored and cleaned up automatically
+- Supported formats: JPEG, PNG, GIF, WebP, AVIF
+
+## Common Error Codes
+
+- `400 Bad Request` - Invalid input (no images, too many images, invalid base64)
+- `500 Internal Server Error` - Pipeline processing failure
+
+### Common Issues
+
+1. **No images provided**
+   ```json
+   {"detail": "No image URLs or base64 images provided"}
+   ```
+
+2. **Too many images**
+   ```json
+   {"detail": "Too many images. Maximum 50 images allowed (URLs + base64 combined)"}
+   ```
+
+3. **Invalid base64 data**
+   - Check that base64 string is valid
+   - Ensure proper MIME type is specified
+
+---
+
 ## Errors
 
-| HTTP Code | Meaning | Most common causes |
+| HTTP Code | Meaning | Most common causes |
 |-----------|---------|--------------------|
 | **400** | Bad Request | Missing or malformed JSON |
 | **401** | Unauthorized | Invalid API token |
 | **403** | Forbidden | Wrong `user_key` for resource |
-| **404** | Not Found | Invalid preset or video ID |
+| **404** | Not Found | Invalid preset or video ID |
 | **500** | Server error | Retry with exponential back‑off |
 
 ---
@@ -293,10 +521,10 @@ Respond with **2XX** to acknowledge delivery.
 
 | Date (UTC) | Version | Notes |
 |------------|---------|-------|
-| 2025‑04‑28 | 0.1 BETA | Initial public release |
+| 2025‑04‑28 | 0.1 BETA | Initial public release |
 
 ---
 
 ## License
 
-Documentation © 2025 Aeon. Released under the MIT License.
+Documentation © 2025 Aeon. Released under the MIT License.
