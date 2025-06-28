@@ -191,27 +191,28 @@ Required body fields:
 |-------|------|-------------|
 | `preset_video_id` | string | ID from **List Presets** |
 | `video_name` | string | Any human‑readable title |
-| `source_url` | string | Web page to convert |
+| `source_url` | string *(optional)* | Web page to convert (not required if using `save_state`) |
 | `user_key` | string | Your user key |
 | `callback_url` | string *(optional)* | POSTed when rendering finishes |
 | `captions` | boolean *(optional)* | Generate captions (default: `true`) |
 | `voice` | boolean *(optional)* | Include voiceover (default: `false`) |
 | `language` | string *(optional)* | Language code (e.g., `en-US`). See [List Supported Languages](#list-supported-languages). Default depends on preset. |
 | `soundtrack` | boolean *(optional)* | Include background music (default: `true`) |
+| `save_state` | string *(optional)* | Saved state blob from AIGC Preview API (looks like `aigc_saved_state_xxx.json`) |
 
 ```bash
 curl -X POST "https://app.project-aeon.com/api/1.1/wf/ae_new_video_from_preset"   -H "Authorization: Bearer YOUR_API_TOKEN"   -H "Content-Type: application/json"   -d '{
         "preset_video_id": "PRESET_ID",
         "video_name": "Aeon Demo — April 2025",
-        "source_url": "https://example.com/article",
-        "user_key": "YOUR_USER_KEY",
-        "callback_url": "https://yourserver.com/aeon-webhook",
+    "preset_video_id": "1751000561548x719904119265165300",
+    "callback_url": "https://yourserver.com/aeon-webhook",
         
         // Optional parameters
         "captions": true,
         "voice": true,
         "language": "en-US", // Get valid codes from /ae_list_languages
-        "soundtrack": true 
+        "soundtrack": true ,
+        "save_state": "aigc_saved_state_xxxx.json"
       }'
 ```
 
