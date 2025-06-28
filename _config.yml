@@ -1,5 +1,21 @@
 title: Aeon API
-theme: jekyll-theme-slate   # change to jekyll-theme-cayman, minimal, etc.
+description: Complete API documentation for Aeon video creation and AIGC image processing
+remote_theme: just-the-docs/just-the-docs
+
+# Just-the-docs configuration
+color_scheme: dark
+search_enabled: true
+heading_anchors: true
+
+# Navigation structure
+nav_order: 1
+
+# Enable back to top link
+back_to_top: true
+back_to_top_text: "Back to top"
+
+# Footer content
+footer_content: "Documentation © 2025 Aeon. Released under the MIT License."
 
 # Exclude files from being published to GitHub Pages
 exclude:
