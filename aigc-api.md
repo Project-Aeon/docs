@@ -80,6 +80,8 @@ Content-Type: application/json
 | `resolution_height` | number | optional | Height (default: 1080) |
 | `pipeline_config_file` | string | optional | Config file name |
 | `location_prompt` | string | optional | Location context for AI |
+| `person_prompt` | string | optional | Description of a person to render in the image |
+
 
 ### Base64 Image Object
 
@@ -109,7 +111,8 @@ Process images directly from URLs:
     "https://example.com/image1.jpg",
     "https://example.com/image2.png"
   ],
-  "location_prompt": "in a modern office setting"
+  "location_prompt": "in a modern office setting",
+  "person_prompt": "a professional businesswoman in her 30s wearing a navy blue suit"
 }
 ```
 
@@ -145,7 +148,8 @@ Combine both input methods:
       "mime_type": "image/png"
     }
   ],
-  "location_prompt": "in a professional photography studio"
+  "location_prompt": "in a professional photography studio",
+  "person_prompt": "a confident photographer in casual clothing with camera equipment"
 }
 ```
 
@@ -217,7 +221,8 @@ curl -X POST https://aigc-preview-889529529975.us-central1.run.app/create-slides
         "mime_type": "image/png"
       }
     ],
-    "location_prompt": "in a modern office"
+    "location_prompt": "in a modern office",
+    "person_prompt": "a young professional software developer wearing casual attire"
   }'
 ```
 
@@ -248,7 +253,8 @@ curl -X POST https://aigc-preview-889529529975.us-central1.run.app/create-slides
     "resolution_width": 3840,
     "resolution_height": 2160,
     "pipeline_config_file": "in-studio_selected-assets_360.json",
-    "location_prompt": "in a high-tech laboratory setting"
+    "location_prompt": "in a high-tech laboratory setting",
+    "person_prompt": "a skilled scientist in a white lab coat conducting experiments"
   }'
 ```
 
@@ -302,7 +308,8 @@ curl -X POST https://aigc-preview-889529529975.us-central1.run.app/create-slides
   -H "Content-Type: application/json" \
   -d '{
     "image_urls": ["https://example.com/image1.jpg", "https://example.com/image2.jpg"],
-    "location_prompt": "in a modern workspace"
+    "location_prompt": "in a modern workspace",
+    "person_prompt": "a creative designer working on innovative projects"
   }'
 
 # Response will include saved_state_blob: "aigc_saved_state_xyz.json"

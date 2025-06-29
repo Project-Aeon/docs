@@ -86,7 +86,8 @@ curl -X POST "https://aigc-preview-889529529975.us-central1.run.app/create-slide
   -H "Content-Type: application/json" \
   -d '{
     "image_urls": ["https://example.com/image1.jpg", "https://example.com/image2.jpg"],
-    "location_prompt": "in a modern office setting"
+    "location_prompt": "in a modern office setting",
+    "person_prompt": "a professional business executive presenting ideas"
   }'
 
 # 2. Create video using saved state
