@@ -81,6 +81,7 @@ Content-Type: application/json
 | `pipeline_config_file` | string | optional | Config file name |
 | `location_prompt` | string | optional | Location context for AI |
 | `person_prompt` | string | optional | Description of a person to render in the image |
+| `animation_prompt` | string | optional | Description of animation style for final video render |
 
 
 ### Base64 Image Object
@@ -112,7 +113,8 @@ Process images directly from URLs:
     "https://example.com/image2.png"
   ],
   "location_prompt": "in a modern office setting",
-  "person_prompt": "a professional businesswoman in her 30s wearing a navy blue suit"
+  "person_prompt": "a professional businesswoman in her 30s wearing a navy blue suit",
+  "animation_prompt": "smooth camera movements with professional transitions"
 }
 ```
 
@@ -149,7 +151,8 @@ Combine both input methods:
     }
   ],
   "location_prompt": "in a professional photography studio",
-  "person_prompt": "a confident photographer in casual clothing with camera equipment"
+  "person_prompt": "a confident photographer in casual clothing with camera equipment",
+  "animation_prompt": "dynamic camera angles with creative artistic movements"
 }
 ```
 
@@ -222,7 +225,8 @@ curl -X POST https://aigc-preview-889529529975.us-central1.run.app/create-slides
       }
     ],
     "location_prompt": "in a modern office",
-    "person_prompt": "a young professional software developer wearing casual attire"
+    "person_prompt": "a young professional software developer wearing casual attire",
+    "animation_prompt": "gentle zoom effects with modern tech-style transitions"
   }'
 ```
 
@@ -237,7 +241,8 @@ curl -X POST https://aigc-preview-889529529975.us-central1.run.app/create-slides
       "https://example.com/image2.png"
     ],
     "duration_per_image": 3.0,
-    "fps": 30
+    "fps": 30,
+    "animation_prompt": "cinematic fade transitions with slow panning movements"
   }'
 ```
 
@@ -254,7 +259,8 @@ curl -X POST https://aigc-preview-889529529975.us-central1.run.app/create-slides
     "resolution_height": 2160,
     "pipeline_config_file": "in-studio_selected-assets_360.json",
     "location_prompt": "in a high-tech laboratory setting",
-    "person_prompt": "a skilled scientist in a white lab coat conducting experiments"
+    "person_prompt": "a skilled scientist in a white lab coat conducting experiments",
+    "animation_prompt": "360-degree rotating views with scientific precision movements"
   }'
 ```
 
@@ -309,7 +315,8 @@ curl -X POST https://aigc-preview-889529529975.us-central1.run.app/create-slides
   -d '{
     "image_urls": ["https://example.com/image1.jpg", "https://example.com/image2.jpg"],
     "location_prompt": "in a modern workspace",
-    "person_prompt": "a creative designer working on innovative projects"
+    "person_prompt": "a creative designer working on innovative projects",
+    "animation_prompt": "smooth creative transitions with inspiring movements"
   }'
 
 # Response will include saved_state_blob: "aigc_saved_state_xyz.json"

@@ -329,7 +329,8 @@ curl -X POST "https://aigc-preview-889529529975.us-central1.run.app/create-slide
   -H "Content-Type: application/json" \
   -d '{
     "image_urls": ["https://example.com/image1.jpg"],
-    "location_prompt": "in a modern office"
+    "location_prompt": "in a modern office",
+    "animation_prompt": "smooth professional transitions with polished movements"
   }'
 
 # 2. Use saved_state_blob from AIGC response
