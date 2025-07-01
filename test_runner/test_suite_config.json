@@ -1,0 +1,73 @@
+{
+  "test_suite_name": "AIGC Preview API Test Suite",
+  "test_description": "Comprehensive testing of image processing pipeline with various input combinations",
+  "base_url": "http://localhost:8080",
+  "endpoint": "/create-slideshow-urls",
+  "timeout_seconds": 300,
+  
+  "image_lists": {
+
+    "temp_multiple": {
+      "name": "Multiple Temp Storage Images",
+      "description": "Multiple images from temporary storage",
+      "urls": [
+        "https://storage.googleapis.com/aigc-preview-temp/tmphprq9bgv.jpg",
+        "https://storage.googleapis.com/aigc-preview-temp/tmpdz46gqy2.jpg",
+        "https://storage.googleapis.com/aigc-preview-temp/tmpwlz8e9oi.jpg",
+        "https://storage.googleapis.com/aigc-preview-temp/tmpwo6hnoge.jpg"
+      ]
+    }
+  },
+  
+  "location_prompts": {
+    "none": {
+      "name": "No Location",
+      "description": "Default location handling",
+      "value": null
+    },
+    "city_sidewalk": {
+      "name": "City Sidewalk",
+      "description": "Urban street setting",
+      "value": "A bustling city sidewalk"
+    }
+  },
+  
+  "person_prompts": {
+    "none": {
+      "name": "No Person Prompt", 
+      "description": "Default person handling",
+      "value": null
+    },
+    "asian_girl": {
+      "name": "Asian Girl",
+      "description": "Specific person description",
+      "value": "A cute asian girl, smiling and having fun"
+    }
+  },
+  
+  "pipeline_configs": {
+    "classic": {
+      "name": "Classic Configuration",
+      "description": "Standard classic pipeline",
+      "filename": "in-studio_selected-assets_classic.json"
+    },
+    "no_face": {
+      "name": "No Face Configuration", 
+      "description": "Pipeline without face processing",
+      "filename": "in-studio_selected-assets_no-face.json"
+    },
+    "360": {
+      "name": "360 Configuration",
+      "description": "360-degree view pipeline", 
+      "filename": "in-studio_selected-assets_360.json"
+    }
+  },
+  
+  "test_settings": {
+    "animation_prompt": "smooth camera movements with professional transitions",
+    "max_retries": 3,
+    "retry_delay_seconds": 5,
+    "save_response_details": true,
+    "include_processing_history": true
+  }
+} 
