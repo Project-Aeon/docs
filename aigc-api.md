@@ -21,7 +21,7 @@ Process images through an AI pipeline with advanced image processing capabilitie
 
 ## Overview
 
-The AIGC Preview API processes images through an AI pipeline that can handle both URL-based and base64-encoded image inputs. The API generates AI descriptions and performs various image processing tasks.
+The AIGC Preview API processes images through an AI pipeline that can handle both URL-based and base64-encoded image inputs. The API generates AI descriptions and performs various image processing tasks. It now supports model images as reference images to enhance AI generation quality, particularly useful for full-body generation when original images don't contain full bodies.
 
 ## Base URL
 
@@ -74,10 +74,8 @@ Content-Type: application/json
 |-------|------|----------|-------------|
 | `image_urls` | array | optional | Array of image URLs |
 | `base64_images` | array | optional | Array of base64 image objects |
-| `duration_per_image` | number | optional | Duration per image (default: 3.0) |
-| `fps` | number | optional | FPS (default: 30) |
-| `resolution_width` | number | optional | Width (default: 1920) |
-| `resolution_height` | number | optional | Height (default: 1080) |
+| `model_urls` | array | optional | Array of model reference image URLs (only first image used) |
+| `model_b64` | array | optional | Array of base64 model image objects (only first image used) |
 | `pipeline_config_file` | string | optional | Config file name |
 | `location_prompt` | string | optional | Location context for AI |
 | `person_prompt` | string | optional | Description of a person to render in the image |
@@ -91,11 +89,22 @@ Content-Type: application/json
 | `data` | string | **required** | Base64 encoded image data |
 | `mime_type` | string | optional | MIME type (default: "image/jpeg") |
 
+### Model Image Object
+
+Model images serve as reference images for AI generation, particularly useful for full-body generation when the original images don't contain full bodies. When provided, model images are used as reference points for multi-image flux generation. **Only one model image is supported per request** - if multiple model images are provided, only the first one will be used.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `data` | string | **required** | Base64 encoded model image data |
+| `mime_type` | string | optional | MIME type (default: "image/jpeg") |
+
 ### Requirements
 
 - At least one of `image_urls` or `base64_images` must be provided
 - Maximum 50 images total (URLs + base64 combined)
+- Only one model image is used per request (if multiple provided, only first is used)
 - Base64 images must have valid `data` field
+- Model images are optional but enhance AI generation quality
 - Supported image formats: JPEG, PNG, GIF, WebP, AVIF
 
 ---
@@ -156,6 +165,50 @@ Combine both input methods:
 }
 ```
 
+### 4. Using Model Images
+
+Model images serve as reference images for AI generation, particularly useful when your original images don't contain full bodies:
+
+#### Model Images via URLs
+```json
+{
+  "image_urls": ["https://example.com/clothing_item.jpg"],
+  "model_urls": ["https://example.com/model_reference.jpg"],
+  "person_prompt": "a professional model in their 20s with confident posture",
+  "location_prompt": "in a modern studio with clean lighting",
+  "animation_prompt": "smooth professional transitions with model poses"
+}
+```
+
+#### Model Images via Base64
+```json
+{
+  "image_urls": ["https://example.com/product.jpg"],
+  "model_b64": [
+    {
+      "data": "iVBORw0KGgoAAAANSUhEUgAA...",
+      "mime_type": "image/png"
+    }
+  ],
+  "person_prompt": "an elegant fashion model with striking features",
+  "animation_prompt": "cinematic fashion photography style transitions"
+}
+```
+
+#### Mixed Model Images
+```json
+{
+  "image_urls": ["https://example.com/garment.jpg"],
+  "model_urls": ["https://example.com/reference_model1.jpg"],
+  "location_prompt": "in a high-end fashion studio",
+  "person_prompt": "a professional fashion model",
+  "animation_prompt": "dynamic fashion show style movements"
+}
+```
+
+{: .note }
+> **Note**: If both `model_urls` and `model_b64` are provided, only the first model image from `model_urls` will be used.
+
 ---
 
 ## Response Format
@@ -167,12 +220,17 @@ Combine both input methods:
   "status": "success",
   "message": "Images processed successfully from URLs and base64 images!",
   "images_requested": 3,
+  "models_requested": 1,
   "result": {
     "processed_images": [
       "https://storage.googleapis.com/bucket/processed_image1.jpg",
       "https://storage.googleapis.com/bucket/processed_image2.jpg"
     ],
-    "saved_state_blob": "aigc_saved_state_uuid.json"
+    "saved_state_blob": "aigc_saved_state_uuid.json",
+    "model_images": [
+      "https://storage.googleapis.com/bucket/model_reference1.jpg"
+    ],
+    "total_model_images": 1
   }
 }
 ```
@@ -240,8 +298,6 @@ curl -X POST https://aigc-preview-889529529975.us-central1.run.app/create-slides
       "https://example.com/image1.jpg",
       "https://example.com/image2.png"
     ],
-    "duration_per_image": 3.0,
-    "fps": 30,
     "animation_prompt": "cinematic fade transitions with slow panning movements"
   }'
 ```
@@ -253,16 +309,49 @@ curl -X POST https://aigc-preview-889529529975.us-central1.run.app/create-slides
   -H "Content-Type: application/json" \
   -d '{
     "image_urls": ["https://example.com/image.jpg"],
-    "duration_per_image": 5.0,
-    "fps": 60,
-    "resolution_width": 3840,
-    "resolution_height": 2160,
     "pipeline_config_file": "in-studio_selected-assets_360.json",
     "location_prompt": "in a high-tech laboratory setting",
     "person_prompt": "a skilled scientist in a white lab coat conducting experiments",
     "animation_prompt": "360-degree rotating views with scientific precision movements"
   }'
 ```
+
+### Using Model Images
+
+```bash
+curl -X POST https://aigc-preview-889529529975.us-central1.run.app/create-slideshow-urls \
+  -H "Content-Type: application/json" \
+  -d '{
+    "image_urls": ["https://example.com/garment.jpg"],
+    "model_urls": ["https://example.com/model_reference.jpg"],
+    "person_prompt": "a professional fashion model with elegant posture",
+    "location_prompt": "in a modern photography studio with professional lighting",
+    "animation_prompt": "smooth fashion photography transitions with model poses"
+  }'
+```
+
+### Mixed Input with Model Images
+
+```bash
+curl -X POST https://aigc-preview-889529529975.us-central1.run.app/create-slideshow-urls \
+  -H "Content-Type: application/json" \
+  -d '{
+    "image_urls": ["https://example.com/clothing1.jpg"],
+    "base64_images": [
+      {
+        "data": "iVBORw0KGgoAAAANSUhEUgAA...",
+        "mime_type": "image/png"
+      }
+    ],
+    "model_urls": ["https://example.com/reference_model.jpg"],
+    "person_prompt": "a professional fashion model showcasing contemporary fashion",
+    "location_prompt": "in a high-end fashion studio with dramatic lighting",
+    "animation_prompt": "dynamic fashion show style movements with professional transitions"
+  }'
+```
+
+{: .note }
+> **Note**: Only one model image is used per request. If both `model_urls` and `model_b64` are provided, only the first image from `model_urls` will be used.
 
 ---
 
@@ -271,6 +360,7 @@ curl -X POST https://aigc-preview-889529529975.us-central1.run.app/create-slides
 | Limit | Value |
 |-------|-------|
 | **Maximum images per request** | 50 images |
+| **Model images per request** | 1 image (only first used if multiple provided) |
 | **Processing timeout** | 180 seconds |
 | **Supported formats** | JPEG, PNG, GIF, WebP, AVIF |
 | **File cleanup** | Base64 images automatically cleaned up |
@@ -301,6 +391,7 @@ curl -X POST https://aigc-preview-889529529975.us-central1.run.app/create-slides
 3. **Invalid base64 data**
    - Check that base64 string is valid
    - Ensure proper MIME type is specified
+   - Applies to both regular images and model images
 
 ---
 
