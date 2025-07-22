@@ -80,6 +80,7 @@ Content-Type: application/json
 | `location_prompt` | string | optional | Location context for AI |
 | `person_prompt` | string | optional | Description of a person to render in the image |
 | `animation_prompt` | string | optional | Description of animation style for final video render |
+| `do_not_alter` | boolean | optional | If true, runs description only and skips AI generation (default: false) |
 
 
 ### Base64 Image Object
@@ -237,6 +238,46 @@ Model images serve as reference images for AI generation, particularly useful wh
 
 The `saved_state_blob` can be used with the [Main Video API](/main-api/#create-a-video-from-a-preset) to create videos from processed images.
 
+### Description-Only Response (do_not_alter: true)
+
+When using `do_not_alter: true`, the response includes detailed AI-generated descriptions:
+
+```json
+{
+  "status": "success",
+  "message": "Images described successfully (description-only mode)!",
+  "images_requested": 2,
+  "result": {
+    "images": [
+      {
+        "original_url": "https://example.com/product1.jpg",
+        "final_url": "https://storage.googleapis.com/bucket/temp_image1.jpg",
+        "description": "A front view of a blue cotton t-shirt displayed on a white background",
+        "person_present": false,
+        "person_full_body": false,
+        "person_description": "A young adult male model with athletic build, wearing casual clothing",
+        "garment_description": "A navy blue cotton crew neck t-shirt with short sleeves",
+        "view": "front",
+        "location_description": "Professional photography studio with clean white background"
+      },
+      {
+        "original_url": "https://example.com/product2.jpg", 
+        "final_url": "https://storage.googleapis.com/bucket/temp_image2.jpg",
+        "description": "A back view of the same blue t-shirt showing the garment details",
+        "person_present": false,
+        "person_full_body": false,
+        "person_description": "A young adult male model with athletic build, wearing casual clothing",
+        "garment_description": "Back view of navy blue cotton t-shirt with standard fit",
+        "view": "back",
+        "location_description": "Professional photography studio with clean white background"
+      }
+    ],
+    "processing_mode": "description_only",
+    "do_not_alter": true
+  }
+}
+```
+
 ### Error Response (4xx/5xx)
 
 ```json
@@ -352,6 +393,26 @@ curl -X POST https://aigc-preview-889529529975.us-central1.run.app/create-slides
 
 {: .note }
 > **Note**: Only one model image is used per request. If both `model_urls` and `model_b64` are provided, only the first image from `model_urls` will be used.
+
+### Description-Only Processing
+
+```bash
+curl -X POST https://aigc-preview-889529529975.us-central1.run.app/create-slideshow-urls \
+  -H "Content-Type: application/json" \
+  -d '{
+    "image_urls": [
+      "https://example.com/product1.jpg",
+      "https://example.com/product2.jpg"
+    ],
+    "do_not_alter": true,
+    "location_prompt": "in a professional photography studio"
+  }'
+```
+
+This returns detailed AI descriptions of your images without running expensive image generation steps, making it perfect for:
+- Content analysis and cataloging
+- Quick metadata extraction
+- Testing image quality before full processing
 
 ---
 
