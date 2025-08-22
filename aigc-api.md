@@ -308,6 +308,37 @@ When using `do_not_alter: true`, the response includes detailed AI-generated des
 
 ---
 
+## 360 Poses
+
+The 360 Poses preset provides specialized 360-degree image processing capabilities with enhanced model positioning and rotation views.
+
+### Preset Configuration
+
+| Field | Value |
+|-------|-------|
+| **Preset ID** | `1754358385499x143335731189776380` |
+| **Pipeline Config File** | `in-studio_selected-assets_360.json` |
+
+### Usage Example
+
+```json
+{
+  "image_urls": ["https://example.com/image.jpg"],
+  "pipeline_config_file": "in-studio_selected-assets_360.json",
+  "location_prompt": "in a professional studio with 360-degree lighting setup",
+  "person_prompt": "a model showcasing the garment from multiple angles",
+  "animation_prompt": "smooth 360-degree rotation with seamless transitions"
+}
+```
+
+This preset is particularly effective for:
+- Product photography requiring multiple viewing angles
+- Fashion and apparel visualization
+- Creating comprehensive visual presentations
+- 360-degree model poses and rotations
+
+---
+
 ## cURL Examples
 
 ### Using Base64 Images
