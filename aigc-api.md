@@ -509,7 +509,7 @@ curl -X POST https://app.project-aeon.com/api/1.1/wf/ae_new_video_from_preset \
   -H "Authorization: Bearer YOUR_API_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
-    "preset_video_id": "1745530741190x383445637",
+    "preset_video_id": "1751000561548x719904119265165300",
     "video_name": "My Image Video",
     "user_key": "YOUR_USER_KEY",
     "save_state": "aigc_saved_state_xyz.json"
